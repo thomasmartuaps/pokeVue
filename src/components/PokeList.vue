@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import type { GetPokemonListResponse } from "@/types/pokemon";
+import { RouterLink } from "vue-router";
+import type { GetPokemonListResponse, PokemonListItem } from "@/types/pokemon";
 import { ref, onMounted } from "vue";
 
-const pokemonList = ref();
+const pokemonList = ref<PokemonListItem[]>([]);
 
 onMounted(async () => {
   const response = await fetch(
@@ -20,16 +21,44 @@ onMounted(async () => {
       referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     }
   );
-  // .then((res) => res.json())
-  // .then(async (data: GetPokemonListResponse) => {
-  //   pokemonList.value = data.results;
-  // });
   const data: GetPokemonListResponse = await response.json();
   pokemonList.value = data.results; // <div>
 });
+
+interface CardTitleProps {
+  name: string;
+}
+
+function renderCardTitle({ name }: CardTitleProps) {
+  const title = name
+    .split("")
+    .map((char, key) => {
+      return key === 0 ? char.toUpperCase() : char;
+    })
+    .join("");
+  return title;
+}
 </script>
 
 <template>
   <div>List of Pokes</div>
-  <div>{{ pokemonList }}</div>
+  <div>
+    <div v-for="pokemon of pokemonList">
+      <div class="card" style="width: 18rem">
+        <img src="..." class="card-img-top" alt="..." />
+        <div class="card-body">
+          <h5 class="card-title">
+            {{ renderCardTitle({ name: pokemon.name }) }}
+          </h5>
+          <p class="card-text">
+            Some quick example text to build on the card title and make up the
+            bulk of the card's content.
+          </p>
+          <RouterLink to="/detail">
+            <button class="btn btn-primary">See Detail</button>
+          </RouterLink>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
